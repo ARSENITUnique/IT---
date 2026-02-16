@@ -1,0 +1,122 @@
+[
+  {
+    "id": 1,
+    "letter": "it-i...",
+    "hint": "IT-проблемы",
+    "english": "IT issues"
+  },
+  {
+    "id": 2,
+    "letter": "c...",
+    "hint": "чат-боты",
+    "english": "chatbots"
+  },
+  {
+    "id": 3,
+    "letter": "c... s... s",
+    "hint": "решения для поддержки клиентов",
+    "english": "customer support solutions"
+  },
+  {
+    "id": 4,
+    "letter": "d...",
+    "hint": "устройство",
+    "english": "device"
+  },
+  {
+    "id": 5,
+    "letter": "e... s",
+    "hint": "email-системы",
+    "english": "email systems"
+  },
+  {
+    "id": 6,
+    "letter": "e... u",
+    "hint": "конечный пользователь",
+    "english": "End User"
+  },
+  {
+    "id": 7,
+    "letter": "g... c",
+    "hint": "групповые чаты",
+    "english": "group chats"
+  },
+  {
+    "id": 8,
+    "letter": "i... m",
+    "hint": "мгновенные сообщения",
+    "english": "instant messaging"
+  },
+  {
+    "id": 9,
+    "letter": "i-t... t",
+    "hint": "инструмент отслеживания проблем",
+    "english": "Issue-Tracking Tool"
+  },
+  {
+    "id": 10,
+    "letter": "l... c",
+    "hint": "живой чат",
+    "english": "Live Chat"
+  },
+  {
+    "id": 11,
+    "letter": "m... s",
+    "hint": "мониторинг ПО",
+    "english": "monitoring software"
+  },
+  {
+    "id": 12,
+    "letter": "n...",
+    "hint": "сети",
+    "english": "networks"
+  },
+  {
+    "id": 13,
+    "letter": "n... o ",
+    "hint": "сбои в сети",
+    "english": "network outages"
+  },
+  {
+    "id": 14,
+    "letter": "P...",
+    "hint": "производительность",
+    "english": "performance"
+  },
+  {
+    "id": 15,
+    "letter": "r... s... t...",
+    "hint": "инструменты для удалённое поддержки",
+    "english": "remote support tools"
+  },
+  {
+    "id": 16,
+    "letter": "s...",
+    "hint": "системы",
+    "english": "systems"
+  },
+  {
+    "id": 17,
+    "letter": "t... s",
+    "hint": "техническая поддержка",
+    "english": "technical support"
+  },
+  {
+    "id": 18,
+    "letter": "t...",
+    "hint": "устранение неисправностей",
+    "english": "troubleshooting"
+  },
+  {
+    "id": 19,
+    "letter": "v... c",
+    "hint": "видеоконференции",
+    "english": "video conferencing"
+  },
+  {
+    "id": 20,
+    "letter": "w...",
+    "hint": "рабочий процесс",
+    "english": "Workflow"
+  }
+]
