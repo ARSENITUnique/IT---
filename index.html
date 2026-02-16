@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>IT термины - диктант</title>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+  <style>
+    body {
+      font-family: sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      background: #f5f5f5;
+    }
+    
+    #app {
+      background: white;
+      padding: 2rem;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      text-align: center;
+      width: 500px;
+      position: relative;
+    }
+    
+    #prompt {
+      font-size: 3.5rem;
+      margin-bottom: 1.5rem;
+      padding: 1rem 1.5rem;
+      border: 4px solid #2196F3;
+      border-radius: 16px;
+      cursor: pointer;
+      display: inline-block;
+      user-select: none;
+      background: linear-gradient(45deg, #2196F3, #1976D2);
+      color: white;
+      font-weight: bold;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+      min-width: 120px;
+    }
+    
+    #instruction {
+      font-size: 1.3rem;
+      color: #666;
+      margin-bottom: 1rem;
+      font-weight: 500;
+    }
+    
+    #answer {
+      padding: 1.2rem;
+      font-size: 1.6rem;
+      width: 100%;
+      box-sizing: border-box;
+      border: 3px solid #ddd;
+      border-radius: 12px;
+      text-align: center;
+      margin-bottom: 1rem;
+      font-weight: 500;
+    }
+    
+    #answer.error {
+      border-color: #f44336;
+      background: #ffebee;
+    }
+    
+    #buttons {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+      margin-bottom: 1rem;
+    }
+    
+    button {
+      padding: 0.8rem 1.5rem;
+      font-size: 1.1rem;
+      font-weight: bold;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    
+    #submitBtn {
+      background: #4CAF50;
+      color: white;
+    }
+    
+    #submitBtn:hover {
+      background: #45a049;
+    }
+    
+    #hintBtn {
+      background: #2196F3;
+      color: white;
+    }
+    
+    #hintBtn:hover {
+      background: #1976D2;
+    }
+    
+    #nextBtn {
+      background: #FF9800;
+      color: white;
+      display: none;
+    }
+    
+    #nextBtn:hover {
+      background: #F57C00;
+    }
+    
+    #message {
+      margin-top: 1rem;
+      font-size: 1.4rem;
+      font-weight: bold;
+      min-height: 2rem;
+    }
+    
+    #message.error {
+      color: #f44336;
+    }
+    
+    #message.success {
+      color: #4CAF50;
+    }
+    
+    #score {
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      background: #FF9800;
+      color: white;
+      padding: 0.5rem 1rem;
+      border-radius: 25px;
+      font-weight: bold;
+      font-size: 1.1rem;
+    }
+    
+    #hintModal {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: rgba(0,0,0,0.9);
+      color: white;
+      padding: 2rem;
+      border-radius: 12px;
+      display: none;
+      z-index: 1000;
+      font-size: 1.5rem;
+      font-weight: bold;
+      max-width: 90vw;
+    }
+    
+    #hintModal.show {
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <div id="score">0/0</div>
+    <div id="prompt">A</div>
+    <div id="instruction">Загрузка...</div>
+    <input type="text" id="answer" placeholder="пиши по-английски...">
+    <div id="buttons">
+      <button id="submitBtn">✅ Проверить</button>
+      <button id="hintBtn">💡 Подсказка</button>
+      <button id="nextBtn">➡️ Следующее</button>
+    </div>
+    <p id="message"></p>
+  </div>
+  
+  <div id="hintModal"></div>
+
+  <script>
+    let letters = [];
+    let queue = [];
+    let current;
+    let score = { correct: 0, total: 0 };
+
+    // Элементы DOM
+    const promptEl = document.getElementById('prompt');
+    const instructionEl = document.getElementById('instruction');
+    const answerEl = document.getElementById('answer');
+    const messageEl = document.getElementById('message');
+    const scoreEl = document.getElementById('score');
+    const submitBtn = document.getElementById('submitBtn');
+    const hintBtn = document.getElementById('hintBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    const hintModal = document.getElementById('hintModal');
+
+    // Загрузка данных
+    fetch('alph.json')
+      .then(response => response.json())
+      .then(data => {
+        letters = data.filter(item => item.english && item.english.trim());
+        shuffleQueue();
+        pickLetter();
+        initEvents();
+      })
+      .catch(error => {
+        promptEl.textContent = '❌';
+        instructionEl.textContent = 'Ошибка загрузки alph.json';
+        console.error('Ошибка:', error);
+      });
+
+    function initEvents() {
+      submitBtn.onclick = checkAnswer;
+      hintBtn.onclick = showHint;
+      nextBtn.onclick = nextQuestion;
+      
+      answerEl.onkeydown = (event) => {
+        if (event.key === 'Enter') {
+          event.preventDefault();
+          checkAnswer();
+        }
+      };
+    }
+
+    function shuffleQueue() {
+      queue = [...letters].sort(() => Math.random() - 0.5);
+    }
+
+    function pickLetter() {
+      // Сброс состояния
+      answerEl.value = '';
+      answerEl.classList.remove('error');
+      messageEl.textContent = '';
+      messageEl.className = '';
+      
+      // Управление кнопками
+      submitBtn.style.display = 'inline-block';
+      nextBtn.style.display = 'none';
+      hintBtn.disabled = false;
+      
+      // Выбор нового слова
+      if (queue.length === 0) {
+        shuffleQueue();
+      }
+      
+      current = queue.pop();
+      promptEl.textContent = current.letter;
+      instructionEl.textContent = `Напиши "${current.hint}" по-английски:`;
+      answerEl.focus();
+      updateScore();
+    }
+
+    function checkAnswer() {
+      const answer = answerEl.value.trim();
+      if (!answer) return;
+      
+      score.total++;
+      const userAnswer = answer.toLowerCase();
+      const correctAnswer = current.english.toLowerCase();
+      
+      if (userAnswer === correctAnswer) {
+        score.correct++;
+        messageEl.innerHTML = '✅ <strong>Отлично!</strong>';
+        messageEl.className = 'success';
+        confetti(); // Конфетти сразу при правильном ответе!
+      } else {
+        messageEl.innerHTML = `❌ Нет! Правильно: "${current.english}"`;
+        messageEl.className = 'error';
+        answerEl.classList.add('error');
+      }
+      
+      // Блокировка ввода и смена кнопок
+      submitBtn.style.display = 'none';
+      nextBtn.style.display = 'inline-block';
+      hintBtn.disabled = true;
+      updateScore();
+    }
+
+    function nextQuestion() {
+      pickLetter();
+    }
+
+    function showHint() {
+      if (!current) return;
+      hintModal.textContent = `"${current.english}"`;
+      hintModal.classList.add('show');
+      setTimeout(() => {
+        hintModal.classList.remove('show');
+      }, 2500);
+    }
+
+    function updateScore() {
+      const percentage = score.total > 0 ? Math.round((score.correct / score.total) * 100) : 0;
+      scoreEl.innerHTML = `${score.correct}/${score.total} (${percentage}%)`;
+    }
+  </script>
+</body>
+</html>
